@@ -1,0 +1,104 @@
+defining dataset 20
+preprocess 10
+classfication j48 10
+
+
+
+Email alex.cronin@griffith.ie with the names of the people in your group and cc the other group member
+I suggest that you work through Google Drive with this document being stored as a Google Doc so that you can both work together. 
+
+#To successfully apply a set of data mining skills imparted in this module to a previously unseen datasets to achieve knowledge discovery. 
+#Evaluate a well-regarded peer reviewed paper or journal article which concerns the application of one of the techniques covered in this module and comment on its relevance to your dataset. 
+
+#firstName1_lastName1_studentNumber1_firstName2_lastName2_studentNumber2_project.zip (zipfile)
+NUMBERED HEADINGS IN RED 
+The original dataset file
+dataset.arff
+trainigSet.arff
+testingSet.arff
+j48tree.arff
+associationrules.arff
+kmeans.arff
+dbscan.arff
+mlp.arff
+The research paper
+
+------------------------------------------------------------------------------------------------------------------------------------------
+@Title(20)
+--
+Wine Reviews
+--
+@problemdomain
+--
+To predict the wine whether it is top quality by its points, make of country, price and winery.
+--
+@source of the data
+--
+https://www.kaggle.com/zynicide/wine-reviews
+These data's have been collected from "WineEnthusiast" website. This company is the best in wine accessories, storage, information in the marketplace. And moreover, This website holds all the informations on wines like ratings, listing the best wines and still more information. Link of the following website is "https://www.winemag.com/about-us/"
+--
+@agencies working with the data
+--
+Still some reserach is going on identifying wines through all the informations of wines. This is an initiative of the research. 
+--
+intented use of the data
+--
+Students around the world are using this dataset for sentiment analysis. And using this dataset leads to creation of application on choosing the top quality wines by filtering attributes. With this dataset we can able to find the supporting attributes on choosing the top quality wine. 
+--
+attribute types of the data
+--
+There are totally 10 attributes and 27001 instances. Let me list out the attributes name and some infomation on the attributes. 
+1.Country: This attribute defines in which country the wine is from. Totally there are 17 distinct countries. 
+2.Designation: This attribute depicts the vineyard used for making the wines. Totally 9757 vineyards are there. 
+3.points: These are the scores given by the WineEnthusiast company. Rated from 1 to 100. (All the reviews are <=80 points)
+4.price: Price of the wine in dollars(PRICE->Min:4$,Max:235$)
+5.province: The state from which the wine is made. Totally there are 83 distinct states and 17 distinct countries.
+6.region1: The wine growing area.
+7.region2: More specific regions to make wines.
+8.variety: The types of grapes used to make wine. 203 types of grapes were used. 
+9.winery: Company which made wine(3397 companies). 
+10.Top quality: class variable deciding whether given wine is top quality or not. 
+--
+
+
+objective
+summary of findings
+we should have dupllicate instances in machine learning. 
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+Preprocessing(10)(30)
+--
+wordfile
+--
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+training and testing
+
+weka->filter->unsuper->instances->resample
+
+----------------------------------------------
+j48
+
+trainingset
+The algorithm was run with 10-fold cross-validation.
+the model achieved a result of 24291/24291 correct or 100%.
+There are no errors in the confusion matrix.
+
+testingset
+The algorithm was run with 10-fold cross-validation.
+the model achieved a result of 2698/2698 correct or 99.9629%.
+There is one error where one of the normal wine are classified as top quality wine. 
+mean absolute error is 0.0003	
+----------------------------------------------
+
+multilayer perceptron
+--
+
+
+
+
+
+
+

@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>
+Python button script
+</title>
+</head>
+<body bgcolor = "yellow">
+
+{% if data %}
+{{data | safe}}
+{% endif %}
+<form action="/external/" method="post">
+{% csrf_token %}
+Temperature: <input type='text' name="param1"style="
+margin-left: 35px;
+" ><br><br>
+Vomiting:  <input type='text' name="param2"style="
+margin-left: 42px;
+"><br><br>
+eyepain:  <input type='text' name="param3" style="
+margin-left: 46px;
+"><br><br>
+Platelets:    <input type='text' name="param4" style="
+margin-left: 58px;"><br><br>
+Fatigue:<input type='text' name="param5" style="
+margin-left: 21px;"><br><br>
+Fever:<input type='text' name="param6" style="
+margin-left: 40px;
+"><br><br>
+Musclepain:<input type='text' name="param7"style="
+margin-left: 45px;
+"><br><br>
+Skinrash:<input type='text' name="param8"style="
+margin-left: 56px;">
+
+<br><br>
+{{data_external}}<br><br>
+{{data1}}
+<br><br>
+<input type="submit" value="Execute External Python Script">
+</form>
+
+</html>

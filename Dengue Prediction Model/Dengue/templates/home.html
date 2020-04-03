@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>
+Python button script
+</title>
+<script>
+    function check_user()
+    {
+        alert("Yo!");
+       var name= document.getElementById('user_name').value;
+       var password= document.getElementById('password').value;
+       if(name=='Tarun'&&password=='Login')
+       {
+        alert("Logged in.");
+           document.getElementById('login').style.display='none';
+           document.getElementById('home_content').style.display='block';
+       }
+       else
+       {
+        alert("User not found.");
+       }
+
+    }
+    function page_loading()
+    {
+        var page= document.getElementById('page_status').value;
+        if(page!='')
+        {
+        document.getElementById('login').style.display='none';
+        document.getElementById('home_content').style.display='block';
+
+        var temp=page.split('~');
+        alert(page);
+        document.getElementById('user_name').innerHTML=temp[0];
+        document.getElementById('user_name').innerHTML=temp[1];
+        document.getElementById('user_name').innerHTML=temp[2];
+        document.getElementById('user_name').innerHTML=temp[3];
+
+        }
+    }
+</script>
+</head>
+
+<body bgcolor = "#dce1e6"style="margin-top: 100px;" onload="page_loading()">
+
+
+        <input id="page_status" type="hidden" value="{{data1}}" style="display:none;"/>
+{% if data %}
+{{data | safe}}
+{% endif %}
+<div id="login">
+
+    <h1 style="font-family:impact;">Greetings. </h1>
+    <input id="user_name"type ="text"  name="username" placeholder="username"><br> <br>
+    <input id="password"type ="text"  name="password" placeholder="password"><br><br><br>
+    <button onclick="check_user()">Login</button>
+</div>
+
+<div id="home_content" style="display:none;">
+<h1 style="font-family:impact;">Realtime Dengue Prediction System</h1>
+<div id = "sms" style="margin-right: 4;margin-left: 500px;">
+<form action="/external/" method="post" style="font-family:impact;">
+{% csrf_token %}
+Temperature: <input type='text' name="param1"style="
+margin-left: 36px;
+" ><br><br>
+Vomiting:  <input type='text' name="param2"style="
+margin-left: 56px;
+"><br><br>
+Eyepain:  <input type='text' name="param3" style="
+margin-left: 62px;
+"><br><br>
+Platelets:    <input type='text' name="param4" style="
+margin-left: 60px;"><br><br>
+Fatigue:<input type='text' name="param5" style="
+margin-left: 71px;"><br><br>
+Fever:<input type='text' name="param6" style="
+margin-left: 82px;
+"><br><br>
+Musclepain:<input type='text' name="param7"style="
+margin-left: 43px;
+"><br><br>
+Skinrash:<input type='text' name="param8"style="
+margin-left: 62px;">
+
+<br><br>
+{{data_external}}<br><br>
+{{data1}}
+<span id="condition"style="font-family:impact;"></span>
+<span id="lat"></span>
+<span id="long"></span>
+<span id="city"></span>
+<br><br>
+<input type="submit" value="Predicted Result" style="font-family:impact;">
+</form>
+</div>
+</div>
+</html>

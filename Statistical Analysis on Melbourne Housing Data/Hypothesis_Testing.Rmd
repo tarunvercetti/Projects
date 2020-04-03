@@ -1,0 +1,327 @@
+---
+title: "Hypothesis Testing On Melbourne Housing Data"
+author: "Tarun Swarup"
+date: "12/27/2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(knitr) 
+
+```
+
+## R Markdown
+## HYPOTHESIS TESTING ##
+******************************************
+
+Hypothesis testing is an act in statistics whereby an analyst tests an assumption regarding a population parameter. The methodology employed by the analyst depends on the nature of the data used and the reason for the analysis. Hypothesis testing is used to infer the result of a hypothesis performed on sample data from a larger population.
+
+**We're going to explore the melbourne housing dataset which contains all the necessary housing DATA in Melbourne such as Price , LandSize , Regionname , Buildingarea , Rooms , YearBuilt etc.**
+
+The most important and crucial step of data analysis is Data Cleaning , which is where we make the dataset more meaningful and prepare it for analysis. This includes removing incorrect values , NA values , cutting down outliers etc.After performing adequate data cleaning , the dataset is stored in dataF.csv. Let's import the same.
+
+```{r , echo=FALSE}
+dataF <- read.csv("/Users/tarunswarup/data1.csv")
+```
+
+###TERMS : HYPOTHESIS TESTING###
+
+There are a number of different types of hypothesis tests, useful for different hypothesis scenarios and data samples. The most commonly used are namely Normality test , T-test , Homogeneity of Variance (HOV) , Chi-Square Test for Independence , Analysis of Variance (ANOVA) , Mood's Median etc . Depending on the nature of the claim or statement proposed, the type of hypothesis can be determined . Each of these have appropriate conditions for the data to be met when used.
+
+The foremost step to start with in hypothesis testing is to state the relevant null and alternate hypothesis.
+
+* **Null Hypothesis , H~O~ : ** 
+
+     This is the hypothesis or claim that is initially assumed to be true. A null hypothesis predicts that the variables in a certain hypothesis have no relationship to one another, and that the hypothesis is normally subjected to some type of statistical analysis. A null hypothesis is a precise statement about a population that we try to reject with sample data.
+
+* **Alternative Hypothesis , H~1~ or H~a~ : **
+
+    This is the hypothesis or claim which we initially assume to be false but which we may decide to accept if there is sufficient evidence.The alternative hypothesis is the hypothesis used in hypothesis testing that is contrary to the null hypothesis. It is usually taken to be that the observations are the result of a real effect.It is which states that there is a statistically significant relationship between two variables.
+    
+* **Level of Significance ( Alpha level )**
+
+    The significance level, also denoted as alpha is the probability of rejecting the null hypothesis when it is true. For example, a significance level of 0.05 indicates a 5% risk of concluding that a difference exists when there is no actual difference , which is equivalent to a confidence level of 95%.
+    
+* **P-value:**
+
+      The p-value (or probability value) is the probability that the test statistic equals the observed value or a more extreme value under the assumption that the null hypothesis is true.
+      
+* **Rejection region:** 
+
+      The set of values for the test statistic that leads to rejection of Ho.
+
+**Note:**
+
+     All the hypothesis stated below are derived from the Melbourne Housing Dataset.
+
+ggplot(survey, aes(x = Gender, y = ExerciseTime, fill = Gender)) + geom_boxplot()
+
+*******************************
+
+#### HYPOTHESIS 1 : AVERAGE PRICE OF HOUSING TYPES IN NORTHERN METROPOLITAN MELBOURNE REGION ####
+
+The average price of type 'h' houses (i.e., house , cottage , villa) in Northern Metropolitan region of Melbourne is evaluated to be AUD 951215 and the standard deviation is 353858. A real estate agent believes that the price value has changed . He decides to test a random sample of 50 houses. The sample mean was found to be AUD 893210 . He claims that the average price of 'h' type houses in this region is lesser than AUD 951215 . He uses a significance level of 5%. Is there sufficent evidence to support the agent's claim? 
+
+**ONE TAILED Z-TEST**
+
+* Null Hypothesis H~O~ : mu = 951215
+* Alternative Hypothesis H~1~ : mu < 951215
+* Level of Significance : 5% (0.05)
+
+Here , we're going to follow a Z test.
+
+**Note :**  _A z-test is a statistical test used to determine whether two population means are different when the variances are known and the sample size is large. The test statistic is assumed to have a normal distribution, and parameters such as standard deviation should be known in order to conduct an accurate z-test.We can find the Z-critical value from the Z-Table._
+
+* With **alpha level 0.05** & **lower-tailed test ** , the decision rule will be: 
+
+    If **z < -2.58** , reject the Null Hypothesis.
+    
+```{r , echo=FALSE}
+xbar1 <- 893210   #sample mean
+mu1 <- 951215     #hypothesized value
+sigma1 <- 353858     #standard deviation
+n1 = 50            #sample size
+z1 = (xbar1 - mu1 )/(sigma1/sqrt(n1))
+z1
+```
+Z-value = -1.16 ( Z > -2.58 ) 
+
+ ``` => ``` **Z value doesn't fall under the rejection region.**
+ 
+To further support the claim ,
+
+* Compute the P-value using z-score and z-table.
+
+```{r}
+pval1 <- pnorm(z1)
+pval1
+```
+p-value is 0.123 ( p > 0.05 )
+
+ ``` => ```  **Hence , we fail to reject the Null Hypothesis.**
+
+``` => ```  **Therefore , we reject the estate agent's claim that the average price of 'h' type houses in Northern Metropolitan Melbourne region is lesser than AUD 951215.**
+
+*********************************
+
+#### HYPOTHESIS 2 : AVERAGE BUILDING AREA OF HOUSES IN WESTERN METROPOLITAN MELBOURNE REGION ####
+
+The standard floor area of 4 - Bedroom residences in Western Metropolitan region of Melbourne on average is 190 square metres. A surveyor believes that the average area is not the same and might have changed . Hence , to further validate his statement , he arbitrarily selects 15 houses in that region. The building areas are given below:
+
+223 257 265 183 166 142 191 244 172 113 297 246 221.3 160 160
+
+Standard Deviation for the sample is 52.27
+Using a significance level (0.10) , he decides to test his hypothesis that the average built areas of houses in the Western Metropolitan Melbourne region is different from the given value.
+
+**TWO TAILED T-TEST**
+
+* Null Hypothesis H~O~: mu = 190
+* Alternative Hypothesis H~1~: mu != 190
+* Level of Significance : 10% (0.10)
+* Degree of Freedom : n - 1 = 15 - 1 = 14
+
+This belongs to the T-distribution.(n = 15 < 30 and population sd are not known.)
+
+**Note :**  _If we do not have a large sample (n<30) , then the Central Limit Theorem does not apply and so we can't use the Z-table. When the scaling term is unknown( say sd) and is replaced by an estimate based on the data, the test statistics follow a Student's t distribution.We can find the T-critical value from the T-Table , depending on the Nature of the test. _
+
+* With **alpha level 0.10** & **two-tailed test** , the decision rule  will be: 
+  
+If **t > 1.345 & t < -1.345** , reject the Null Hypothesis.
+
+The t-value is taken from the T-table with respect to the degree of freedom (n-1) is 14 and significance level ( 0.10 )
+  
+
+```{r}
+w <- c(223,257,265,183,166,142,191,244,172,113,297,246,221.3,160,160)
+mean(w)
+sd(w)
+# w - sample of 4-bedroom houses in West.Metro
+# alternative - denotes whether test is one - tailed or two-tailed.
+# mu - hypothesized value
+# conf.level - confidence level for the hypothesis
+#t - t-test results are stored here.
+t <- t.test(w , alternative = "two.sided" , mu = 190 , conf.level = 0.90 )
+t
+```
+From the t-test results 
+ 
+ **-1.345 < t < 1.345 and p > 0.10**
+ 
+``` => ``` **T value doesn't fall under the rejection region.**
+``` => ``` **Hence , we fail to reject the Null Hypothesis.**
+
+ **p-value = 0.2687 > 0.10**
+ 
+ ``` => ``` **Therefore , enough evidence is not available to support the surveyor's claim that the average floor area (landsize) of 4 - Bedroom residences in Western Metropolitan region of Melbourne is not 190 square metres.**
+ 
+ 
+#### HYPOTHESIS 3 : AVERAGE LANDSIZE OF HOUSES (BEFORE 1900's Vs AFTER 1900's) ####
+
+A data analyst studying the Melbourne housing dataset plans to compare the Landsizes of houses that were built before the 19th century with those that were built after the period. One of his inferences was that building designers had started constructing large residential properties ( greater landsize ) more from the 1900's. He decides to test the difference in mean landsizes of the two groups. He accumulates the required data samples.
+His findings were:
+
+
+
+     
+		                                Before 1900	     After 1900
+                
+                No of samples 	           20		          20 
+                sample Mean		           253		 `       420
+                sample sd	               163		         325
+
+
+Is there enough evidence that the mean landsizes of properties belonging to the two periods differ ? 
+
+**Difference between Two Means (Independent Groups)**
+
+This is a two sample t test which is used to determine if two population means are equal or unequal.i.e., Hypothesis testing of the difference between two population means . A researcher would be more interested in the difference between means than in the specific values of the means themselves. This is used to determine whether the difference between means found in the sample is significantly different from the hypothesized value.
+ 
+* Null Hypothesis : mu~1~ - mu~2~ = 0
+* Alternative Hypothesis : mu~1~ - mu~2~ != 0
+* Level of Significance : 5% (0.05)
+
+This belongs to the T-distribution.(n = 20 < 30 and population sd are not known.)
+
+* With **alpha level 0.05** & **two-tailed test** , the decision rule  will be: 
+ 
+ Rejection region (2 tailed) t > 2.09 and t < -2.09
+
+Rejection region: the set of values for the test statistic that leads to rejection of Ho.
+
+The t-value is taken from the T-table with respect to the degree of freedom (n-1) is 19 and significance level ( 0.05 )
+
+```{r}
+
+xbar1 <- 253  #Average landsize of houses before 1900
+xbar2 <- 420  #Average landsize of houses after 1900
+sdA <- 163    #Standard deviation of houses before 1900
+sdB <- 325    #Standard deviation of houses after 1900
+nA = nB <- 20  #Sample size
+num <- xbar1 - xbar2   
+d1 <- (sdA * sdA) / nA
+d2 <- (sdB * sdB) / nB
+d <- d1 + d2
+den <- sqrt(d)
+t <- num / den
+t             
+pval1 <- pnorm(t)
+pval1
+```
+p = 0.01998209 
+
+It is a two-sided test , so double the p value. ( p = 0.024 < 0.05 )
+
+``` => ``` **We reject the null hypothesis .**
+``` => ``` ** Hence , the data analyst concludes that there is a significant difference in the average landsizes of houses built in Melbourne before and after the 19th century .**
+
+**Confidence Interval**
+
+The 95% confidence interval is
+
+```{r}
+t1 <- (xbar1-xbar2)
+t2 <- -2.054 * den
+a <- t1+t2
+b <- t1-t2
+CI <- c(a,b)
+CI
+```
+
+
+** Hence , the researcher is 95% confident that the average landsizes significantly differ in the interval -3.339903e+02 -9.673678e-03.**
+
+
+#### HYPOTHESIS 4 : DISTRIBUTION OF HOUSING TYPES IN MELBOURNE  ####
+  
+There are three categories of housing types in the city of Melbourne. (h - house,cottage,villa, semi,terrace; u - unit, duplex; t - townhouse)
+A global construction & infrastructure company claims that 60% of the houses in Melbourne are type 'h', 30% type 'u' and 10% are type't'.
+Suppose a random sample of 300 houses has 174 type 'h' , 86 type'u' , and 40 type't' houses 36/. Is this consistent with the company's claim? Test the hypothesis using a 0.10 level of significance.
+
+
+**GOODNESS OF FIT CHI-SQUARED TEST**
+
+The Chi Squared Test for Goodness of Fit is a non-parametric test applied when you have one categorical variable from a single population. It is used to determine whether sample data are consistent with a hypothesized distribution. It claims about population proportions.
+
+* Null Hypothesis : mu~0~ The sample data meet the expected distribution.
+* Alternative Hypothesis : mu~1~ The sample data doesn't meet the expected distribution.
+* Level of Significance : 10% (0.10)
+* Degree of Freedom : n - 1 = 3 - 1 = 2
+
+
+**Note :**  _This table contains the critical values of the chi-square distribution. Because of the lack of symmetry of the chi-square distribution, separate tables are provided for the upper and lower tails of the distribution. A test statistic with k degrees of freedom is computed from the data._
+
+* With **alpha level 0.01** & **Chi Squared Goodness of Fit Test** , the decision rule  will be: 
+
+**If (chi)^2^ value is greater than 9.210 , reject the Null Hypothesis.**
+
+** TEST STATISTIC**
+
+Formula : chi^2^ =  summation {obs - exp}^2^ / exp
+
+```{r}
+obs <- c(174,86,40)        #observed data from the sample
+exp <- c(0.60,0.30,0.10)   #expected proportions 
+chi <- chisq.test(obs,exp)
+chi                        #chi test results are stored here
+
+```
+From the chi test results ,
+
+``` => ``` **We fail to reject the null hypothesis. ( or suggest the alternative hypothesis.)**
+``` => ``` **We can conclude that the houses in Melbourne are evenly distributed among the three categories of( type : h u t)**
+
+```{r}
+# hist(p3$Price,col="blue", xlab="No.of houses", main = "Histogram of Price")
+# plot(r4s$Landsize ,r4s$BuildingArea , main = "Scatterplot" , xlab = "Price" , ylab = "Area" , pch=20 )
+# plot(s5s$Landsize , s4s$Landsize)
+#df.plot.bar(x = 'Name', y = ['Events1', 'Events2'], rot = 40)
+
+```
+
+
+####STATEMENTS####
+
+**HYPOTHESIS 1 :**
+We reject the estate agent's claim that the average price of 'h' type houses in Northern Metropolitan Melbourne region is lesser than AUD 951215.
+
+**HYPOTHESIS 2 :**
+Enough evidence is not available to support the surveyor's claim that the average floor area (landsize) of 4 - Bedroom residences in Western Metropolitan region of Melbourne is different  from the given value 190 square metres.
+
+**HYPOTHESIS 3 :**
+The  analyst concludes that there is a significant difference in the average landsizes of houses built in Melbourne before & after the 19th century.
+
+**HYPOTHESIS 4 :**
+We can conclude that the houses in Melbourne are evenly distributed among the three housing categories of( type : h u t).
+
+**=================================================================================================================================================**
+
+####PLOTS####
+The histogram below gives us a representation of the distribution of numerical data from our sample. It is an estimate of the probability distribution of the Price variable.
+
+```{r}
+hist(w,col="blue", xlab="Price of type 'h' houses in Northern Metropolitan region", main = "Histogram of Price")
+#w contains a sample of prices of type 'h' houses in North.Metropolitan region
+```
+
+The line graph below visualizes the value range of price variable.
+
+```{r}
+plot(w,lwd=1.5, type = "l", col = 'red', xlab = "Freq", ylab = "Price of Property", main = "LINE PLOT 1")
+```
+
+Here is a scatterplot that displays the average landsize of houses built over two time periods ( before 1900 and after 1900 )
+
+```{r}
+ a <- c (0, 665, 780, 613, 150, 567 ,196,   0,  60, 212, 132, 713, 336, 650, 839, 0 ,980 ,951, 588, 836)
+b <- c(673, 0 ,168, 390, 170, 323 , 69, 448, 344, 0, 840, 128, 148, 0, 164, 0 ,646, 147, 162, 613)
+plot(a , b , main = "AVERAGE LANDSIZE OF HOUSES (BEFORE 1900's Vs AFTER 1900's)" , xlab = "Landsizes before 1900" , ylab = "Landsizes after 1900 " , pch=15 )
+
+```
+
+**=================================================================================================================================================**
+
+

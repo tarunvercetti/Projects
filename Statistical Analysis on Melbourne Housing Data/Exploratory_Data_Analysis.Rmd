@@ -1,0 +1,469 @@
+---
+title: '*EXPLORATORY DATA ANALYSIS ON MELBOURNE HOUSING DATA*'
+author: "Tarun Swarup"
+date: "01/11/2018"
+output:
+  
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE , cache=TRUE , echo=FALSE}
+library(knitr)
+library(rmarkdown)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(Hmisc)
+library(tidyverse)
+library(devtools)
+library(corrplot)
+library(tableplot)
+library(PerformanceAnalytics)
+library(lattice)
+library(psych)
+library(RColorBrewer)
+
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+*********************
+
+**We're going to explore the melbourne dataset which contains all the necessary housing DATA in Melbourne such as Price , LandSize , Region , etc.**
+
+Firstly , import the Melbourne Dataset into R studio. 
+
+The most important and crucial step of data analysis is Data Cleansing , which is where we make the dataset more meaningful and prepare it for analysis. This includes removing incorrect values , NA values , cutting down outliers etc. 
+
+The initial step of cleaning the data is an initial exploration of the data frame imported. 
+
+```{r echo=FALSE}
+melbourne_data <- read.csv("/Users/tarunswarup/Downloads/melbourne_data.csv")
+
+```
+melbourne_data is a **`r class(melbourne_data)`** .  
+
+Dimensions are **`r nrow(melbourne_data)`** rows and **`r ncol(melbourne_data)`** columns.   
+
+It has housing information such as *`r names(melbourne_data)`*
+
+Let's have an overview of the dataset and how it looks.
+
+```{r , echo=TRUE, eval=TRUE, cache=TRUE}
+str(melbourne_data)
+```
+
+We can't view the whole dataset in single screen as it is enormous.
+
+So ,let's take a look the first 10 rows of our data.
+
+```{r}
+head(melbourne_data,n=10) 
+```
+
+As we can see from the above examples that there are some unassigned data. 
+These are known as **NA** values. It is possible that the dataset might have incorrect or missing values , blank rows and columns etc. This makes our data untidy which is not suitable for a proper EDA.
+
+Let's try plotting some of our data to get a better picture.The *ggplot2* is a powerful package in R to create elegant visualisations of data.(Grammar of Graphics).
+Plotting helps us in understanding our data more and can even confirm that there is data missing.
+
+```{r cache=TRUE}
+ggplot(melbourne_data,aes(melbourne_data$Price,melbourne_data$Landsize)) + geom_point()
+```  
+
+We can  use histograms , boxplots and scatterplots too.
+
+```{r cache=TRUE}
+hist(melbourne_data$Price)
+
+plot(melbourne_data$Price, melbourne_data$Landsize)
+
+boxplot(melbourne_data$Price)
+```
+
+We can see that there are extreme values in the graphs which are beyond reach . These are known as **outliers**.
+
+We have to tidy our dataset by removing the following in order to make our data set more meaningful and ready for analysis.  
+
+* NA values  
+* Outliers 
+* Blank rows/columns , etc
+
+First , let's detect the NA values using **is.na()** which returns TRUE for the NA positions and with **colSums** , we can calculate the total number of missing cases columnwise.
+
+```{r echo=FALSE}
+colSums(is.na(melbourne_data))
+```
+
+The total number of NA values in the whole dataset is **`r sum(is.na(melbourne_data))`**.
+
+Similarly , we can calculate the number of NA values in each column.
+
+X   = `r sum(is.na(melbourne_data$X))`        
+Date = `r sum(is.na(melbourne_data$Date))`  
+Type = `r sum(is.na(melbourne_data$Type))`  
+Price = `r sum(is.na(melbourne_data$Price))`  
+LandSize = `r sum(is.na(melbourne_data$LandSize))`        
+BuildingArea = `r sum(is.na(melbourne_data$BuildingArea))`        
+Rooms = `r sum(is.na(melbourne_data$Rooms))`        
+Bathroom `r sum(is.na(melbourne_data$Bathroom))`        
+Cars = `r sum(is.na(melbourne_data$car))`        
+Yearbuilt = `r sum(is.na(melbourne_data$Yearbuilt))`        
+Distance = `r sum(is.na(melbourne_data$Distance))`        
+Regionname = `r sum(is.na(melbourne_data$Regionname))`        
+Propertycount = `r sum(is.na(melbourne_data$Propertycount))`     
+
+With the returned information , we can wipe the NA values from the respective columns.This might be a tedious process. We can also get rid of all the rows containing NAs at once , but we might end up in deleting a major portion of the sample size. A better approach would be to strip out the columns which we know that are not going to be used in that particular analysis.This will help us in not losing data.
+
+```{r echo=FALSE}
+mel_data_clean <- na.omit(melbourne_data)
+```
+
+We can verify if all the NAs are removed.
+
+```{r echo=FALSE}
+any(is.na(mel_data_clean))
+```
+
+Now that we have an NA free dataset, we can go ahead to correct the errors and remove the outliers.
+
+```{r cache=TRUE, echo=FALSE}
+mel_data <- boxplot.stats(mel_data_clean$Price)$out;
+mel_data_clean$Price[mel_data_clean$Price %in%mel_data] <- median(mel_data_clean$Price)
+```
+
+We have replaced the outliers of **Price** with median values. Let's plot.
+
+```{r cache=TRUE , echo=FALSE}
+plot(mel_data_clean$Price)
+boxplot(mel_data_clean$Price)
+```
+
+We can see that the extremes have been eliminated to a certain extent and our data is being cleansed.
+
+```{r echo=FALSE}
+
+qnt <- quantile(mel_data_clean$Price, probs=c(.25, .75), na.rm = T)
+qnt
+caps <- quantile(mel_data_clean$Price, probs=c(.05, .95), na.rm = T)
+caps
+x <- mel_data_clean$Price
+P <- 1.5 * IQR(x, na.rm = T)
+x[x < (qnt[1] - P)] <- caps[1]
+x[x > (qnt[2] + P)] <- caps[2]
+plot(x)
+hist(mel_data_clean$Landsize)
+Price1 <- subset(mel_data_clean,Price < 1000000 )
+```
+
+
+```{r echo=FALSE}
+boxplot(mel_data_clean$Price)$out
+```
+
+The above plot displays the outliers for **Price** variable. Hence , the identified outliers can be removed from the dataset.
+
+Now , let's delete.
+
+```{r echo=FALSE}
+outliers1 <- boxplot(mel_data_clean$Price,plot=F)$out
+mel_data_clean<- mel_data_clean[-which(mel_data_clean$Price %in% outliers1),]
+boxplot(mel_data_clean$Price)
+```
+
+Outliers gone.
+Skimming through the dataset, we can very well guess where outliers would be possible.
+
+Removing the outliers for LandSize
+
+```{r echo=FALSE}
+outliers1 <- boxplot(mel_data_clean$Landsize,plot=F)$out
+mel_data_clean<- mel_data_clean[-which(mel_data_clean$Landsize %in% outliers1),]
+boxplot(mel_data_clean$Landsize)
+```
+
+Removing the outliers for BuildingArea
+
+```{r echo=FALSE}
+outliers2 <- boxplot(mel_data_clean$BuildingArea,plot=F)$out
+mel_data_clean <- mel_data_clean[-which(mel_data_clean$BuildingArea %in% outliers2),]
+boxplot(mel_data_clean$BuildingArea)
+```
+
+Removing the outliers for Rooms
+
+```{r echo=FALSE}
+outliers3 <- boxplot(mel_data_clean$Rooms , plot = F)$out
+mel_data_clean <- mel_data_clean[-which(mel_data_clean$Rooms %in% outliers3),]
+boxplot(mel_data_clean$Rooms)
+
+```
+Removing the outliers for YearBuilt
+
+```{r echo=FALSE}
+
+outliers4 <- boxplot(mel_data_clean$YearBuilt,plot=F)$out
+mel_data_clean <- mel_data_clean[-which(mel_data_clean$YearBuilt %in% outliers4),]
+boxplot(mel_data_clean$YearBuilt)
+```
+
+**We've cleansed our data set to a certain extent. It is possible to even explore further and find new ways to structure data and prepare for analysis.**
+
+####SUMMARY####
+The housing information data frame is branched into 13 variables.
+
+**VARIABLE**  | **DESCRIPTION**
+------------- | -------------
+X  | Serial Numbers
+Date  | Date in dd/mm/yyyy format
+Type  |  Types of house (unit,townhouse,etc)
+Price |  price of houses
+Landsize | Total size of the property
+BuildingArea | Built area of the property
+Rooms | Number of rooms.
+Bathroom | Number of Bathrooms.
+Car | Parking Space 
+YearBuilt | Year of construction.
+Distance | Distance from the Central Business District(CBD) in kms.
+Regionname | Area where the property is located like Eastern Victoria , Southern                Metropolitan
+Propertycount | Number of housing units in the respective areas.
+
+Here is the summary of the Melbourne housing data set which gives us with statistical information like mean , mode , median , 1st quantile , 3rd quantile , etc...
+
+**X**
+```{r echo=FALSE}
+summary(mel_data_clean$X)
+```
+**Price**  
+```{r echo=FALSE} 
+summary(mel_data_clean$Price)
+```
+**Landsize**
+```{r echo=FALSE}
+summary(mel_data_clean$Price)
+```
+**BuildingArea**
+```{r echo=FALSE}
+summary(mel_data_clean$Landsize)
+```
+**Rooms**
+```{r echo=FALSE}
+summary(mel_data_clean$Rooms)
+```
+**Bathroom**
+```{r echo=FALSE}
+summary(mel_data_clean$Bathroom)
+```
+**Car**
+```{r echo=FALSE}
+summary(mel_data_clean$Car)
+```
+We can also use functions like `glimpse()` and `describe()` which display the summary in different formats. 
+```{r echo=FALSE}
+require(dplyr)
+glimpse(mel_data_clean)
+```  
+  
+  
+###PLOT###
+
+#### **Piechart** ####
+
+```{r echo=FALSE}
+require(ggplot2)
+Types <- mel_data_clean$Type
+ggplot(mel_data_clean, aes(x="Types of Houses", fill=Types)) +geom_bar(width =1)+
+coord_polar("y")
+```
+
+#### **Line Graph** ####
+
+```{r cache=TRUE , echo=FALSE}
+plot(mel_data_clean$Price ,lwd=1.5, type = "l", col = 'red', xlab = "Freq", ylab = "Price of Property", main = "LINE PLOT 1")
+```
+
+
+####Bar Graph####
+
+```{r echo=FALSE}
+require(ggplot2)
+ggplot(mel_data_clean, aes(mel_data_clean$BuildingArea,mel_data_clean$Landsize)) + geom_bar(stat = "identity" , color = 'black') + labs(x = 'Price ', y = 'Area', title = "Built Vs Land ") 
+
+```
+
+This is another way to plot a bar graph.
+
+```{r echo=FALSE}
+t <- table(mel_data_clean$Landsize[mel_data_clean$Type=='h'])
+barplot(t , xlab= 'Year of Construction ', ylab='Price of Property' , col='blue')
+```
+
+#### **Histogram** ####
+
+```{r echo=FALSE}
+hist(mel_data_clean$Car,col="blue", xlab="No.of cars", main = "Histogram of Cars")
+```
+
+#### Scatterplot####
+
+```{r echo=FALSE}
+plot(mel_data_clean$Price , mel_data_clean$LandSize , main = "Scatterplot" , xlab = "Price" , ylab = "Area" , pch=20 )
+```
+
+
+####RELATIONSHIPS####
+
+We can start exploring the dataset to determine how the variables are interrelated and how strong their correlations are.This would aid us in extrapolating a lot of valuable information.Let's see the relationships between the variables one by one.
+
+**PRICE**
+
+```{r echo=FALSE}
+abc <- subset(mel_data_clean , select = c(Price , Landsize , BuildingArea , Rooms , Bathroom , Car , YearBuilt ))
+cor(abc)
+
+cor(abc ,y = NULL, use = "everything",  method = c("pearson", "kendall", "spearman"))
+plot(mel_data_clean$Landsize , mel_data_clean$Price)
+
+```
+
+
+```{r echo=FALSE}
+x <- subset(mel_data_clean , select = c(Price , Landsize , BuildingArea , Rooms , Bathroom , Car ))
+cor(x , y = NULL ,  method = c("pearson", "kendall", "spearman"))
+
+```
+
+With the correlation and covariance values returned , we can infer multivariate relationships.
+
+`pairs.panels()` gives us an initial overview of the variables.
+
+```{r echo=FALSE}
+require(psych)
+pairs.panels(mel_data_clean[-5], bg=c("blue","red","yellow")[mel_data_clean$Price], pch=20,lm=F)
+```
+
+#### GROUPING VARIABLES ####
+
+Let's group the price variable into three namely low,medium,high.. based on it's range.
+
+Price_range_low denotes the houses falling under $4000000.
+
+```{r cache=FALSE , echo=FALSE}
+
+m1 <- na.omit(melbourne_data)
+p1 <- subset(m1,Price<=4000000)
+
+```
+We can further summarise the new dataset by using `group_by()` and `summarise()` functions. It makes better sense when statistical values like mean , median , min, max etc are returned for each of the sub-groups.
+
+```{r echo=FALSE}
+
+p11 <- group_by(p1, Price)
+Price_range_low <- summarise(p11 , mean_Landsize = mean(Landsize , na.rm = T), mean_Buildingarea= mean(BuildingArea , na.rm=T ), mean_Rooms = mean(Rooms , na.rm = T), mean_Bathroom = mean(Bathroom , na.rm=T))
+Price_range_low
+
+```
+
+**Price_range_medium** denotes the houses falling between $4000000 and $6000000
+
+```{r echo=FALSE  }
+
+m2 <- na.omit(melbourne_data)
+p2 <- subset(m2, Price >= 4000000 & Price <= 6000000)
+p22 <- group_by(p2, Price)
+Price_range_medium <- summarise(p22 , a = mean(Landsize , na.rm = T), b= mean(BuildingArea , na.rm=T ), c = mean(Rooms , na.rm = T), d = mean(Bathroom , na.rm=T))
+Price_range_medium 
+
+```
+
+**Price_range_high** denotes the houses falling above $6000000.
+
+```{r echo=FALSE }
+m3 <- na.omit(melbourne_data)
+p3 <- subset(m3,Price>=6000000)
+p33 <- group_by(p3, Price)
+Price_range_high <- summarise(p33 , a = mean(Landsize , na.rm = T), b= mean(BuildingArea , na.rm=T ), c = mean(Rooms , na.rm = T), d = mean(Bathroom , na.rm=T))
+Price_range_high
+
+```
+
+
+
+####CORRELATION####
+
+We can estimate the value of correlation coefficient between multiple variables using `cor()` and it ranges between **-1** and **1** denoting the strength between them. The  default method used is **Pearson's**  but we have other methods like **Spearman** and **Kendall**which use Rank , Discordance and concordance respectively.Let's work on Price variable.
+
+**CORRELATION OF PRICE VAR**
+
+Price Vs LandSize = `r cor(mel_data_clean$Price , mel_data_clean$Landsize)`
+
+Price Vs BuildingArea = `r cor(mel_data_clean$Price , mel_data_clean$BuildingArea)`
+
+Price Vs Rooms = `r cor(mel_data_clean$Price , mel_data_clean$Bathroom)`
+
+Price Vs Car = `r cor(mel_data_clean$Price , mel_data_clean$Car)`
+
+Price Vs YearBuilt = `r cor(mel_data_clean$Price , mel_data_clean$YearBuilt)`
+
+Price Vs Rooms = `r cor(mel_data_clean$Price , mel_data_clean$Rooms)`
+
+
+```
+
+The correlation values of **Price** with other variables are returned. Hence, we can relate them with Price on a scale of -1(negative) to +1(positive). Negative means that the variables are inversely proportional and Positive means that they're directly proportional. With the above data , we can say that Price has the highest positive correlation with BuildingArea and the highest negative correlation with the YearBuilt. The Price variable is affected by all variables in our data set to a certain extent. There is no Zero correlation in the case of Price variable.
+
+We've several ways to determine the correlation between variables in R. Another way to visualise correlation of a data frame as a whole is by plotting a corellogram which can be done by using `corrplot` package. There are many methods available in the package such as circle , number etc.
+
+First , we've to subset our dataset to exclude the non numerical variables so that we can plot.
+
+```{r echo=FALSE}
+c1 <- subset(mel_data_clean , select = c(Price , Landsize , BuildingArea , Rooms , Bathroom , Car , YearBuilt ))
+c1 <- cor(abc)
+corrplot::corrplot(c1 , method = "circle")
+corrplot::corrplot(c1 , method = "number")
+corrplot::corrplot(c1 , method = "shade")
+corrplot::corrplot(c1 , method = "ellipse")
+```
+
+These plots give us all details regarding the levels of correlation of all the variables in our data set in the form of circles , numbers , ellipses etc.  
+
+
+Let's group Type variable based on different regions using a stacked barchart.
+
+```{r echo=FALSE}
+Region <- melbourne_data$Regionname
+d2 <- m1 %>%
+  count(Type) %>%
+   top_n(10) %>%
+   arrange(n,Type ) %>%
+   mutate(R = factor(Type, levels = unique(Type)))
+
+
+d1 <- d2 %>%
+ filter(Type %in% d2$Type) %>%
+   mutate(Type = factor(Type, levels = levels(d2$Type))) %>%
+   ggplot(aes(x = Type , fill = Type)) +
+     geom_bar()
+d1
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
